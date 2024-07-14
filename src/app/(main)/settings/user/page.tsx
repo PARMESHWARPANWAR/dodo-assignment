@@ -3,7 +3,7 @@
 import { Divider, TextInput } from '@tremor/react';
 import React from 'react';
 
-export default function Example() {
+export default function User() {
   return (
     <>
       <div className="sm:mx-auto sm:max-w-2xl">
