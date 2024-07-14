@@ -184,3 +184,8 @@ export function RightSideBar({
         </>
     );
 }
+
+
+
+RightSidebarView.displayName = 'RightSidebarView';
+RightSideBar.displayName = 'RightSideBar';
