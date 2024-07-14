@@ -196,6 +196,11 @@ export default function RecentTransaction() {
     { id: 'workspace', desc: false },
   ]);
 
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: pageSize,
+  });
+
   const data = useMemo(
     // multiply dummy data to better demonstrate pagination over several pages
     () => [...workspaces, ...workspaces, ...workspaces, ...workspaces],
@@ -210,12 +215,10 @@ export default function RecentTransaction() {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
+    onPaginationChange: setPagination,
     state: {
       sorting,
-      pagination: {
-        pageIndex: 0,
-        pageSize: pageSize,
-      },
+      pagination,
     },
   });
 
@@ -310,8 +313,9 @@ export default function RecentTransaction() {
       <div className="mt-10 flex items-center justify-between">
         <p className="text-tremor-default tabular-nums text-tremor-content dark:text-dark-tremor-content">
           Page{' '}
-          <span className="font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">{`${table.getState().pagination.pageIndex + 1
-            }`}</span>{' '}
+          <span className="font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
+            {`${pagination.pageIndex + 1}`}
+          </span>{' '}
           /
           <span className="font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
             {' '}
