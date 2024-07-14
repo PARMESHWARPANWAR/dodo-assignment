@@ -5,6 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/Dropdown"
+import { Today, Week, Month, Year, DataSet } from '@/data/overview'
 import DataCard from '@/components/ui/DataCard'
 import RevenueChart from '@/components/ui/RevenueChart'
 import TransactionsBarChart from '@/components/ui/TransactionsBarChart'
@@ -28,11 +29,27 @@ export type KpiEntryExtended = Omit<
   color: string
 }
 
+
 export default function Overview() {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedValue, setSelectedValue] = useState('Today');
+  const [selectedPeriod, setSelectedPeriod] = useState('Year');
 
-  const options = ['Today', 'Month', 'Year'];
+  const getData = (): DataSet => {
+    switch (selectedPeriod) {
+      case "Today":
+        return Today;
+      case "Week":
+        return Week;
+      case "Month":
+        return Month;
+      case "Year":
+        return Year;
+      default:
+        return Today;
+    }
+  };
+
+  const options = ['Today','Week' ,'Month', 'Year'];
   return (
     <>
       <section>
@@ -40,7 +57,7 @@ export default function Overview() {
           <DropdownMenuTrigger
             className="flex scroll-mt-10 w-32 px-4 text-lg font-semibold text-gray-900 sm:text-xl dark:text-gray-50 mb-4 focus:outline-none"
           >
-            {selectedValue}
+            {selectedPeriod}
             <RiArrowDownSLine
               className={`ml-2 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
             />
@@ -51,7 +68,7 @@ export default function Overview() {
               <DropdownMenuItem className="focus:outline-none"
                 key={option}
                 onSelect={() => {
-                  setSelectedValue(option);
+                  setSelectedPeriod(option);
                   setIsOpen(false);
                 }}
               >
@@ -61,34 +78,13 @@ export default function Overview() {
           </DropdownMenuContent>
         </DropdownMenu>
         <div className="grid grid-cols-1  md:grid-cols-2 xl:grid-cols-4 gap-6 text-foreground">
-          <DataCard
-            className="bg-[#f9fef0] dark:bg-[#004d40] dark:text-gray-200"
-            label="Revenue"
-            amount="$24M"
-            sublabel="11.01%"
-            growth="positive"
-          />
-          <DataCard
-            className="bg-[#DBE6f2] dark:bg-[#1E3A5F] dark:text-gray-200"
-            label="Transaction"
-            amount="14K"
-            sublabel="-0.03%"
-            growth="negative"
-          />
-          <DataCard
-            className="bg-[#f9fef0] dark:bg-[#004d40] dark:text-gray-200"
-            label="Avg Transaction"
-            amount="$2K"
-            sublabel="+15.03%"
-            growth="positive"
-          />
-          <DataCard
-            className="bg-[#DBE6f2] dark:bg-[#1E3A5F] dark:text-gray-200"
-            label="Refunds"
-            amount="1K"
-            sublabel="+6.08%"
-            growth="positive"
-          />
+          {getData().map((item, index) => (
+            <DataCard
+              key={index}
+              className={index % 2 === 0 ? "bg-[#f9fef0] dark:bg-[#004d40] dark:text-gray-200" : "bg-[#DBE6f2] dark:bg-[#1E3A5F] dark:text-gray-200"}
+              {...item}
+            />
+          ))}
         </div>
 
         <div className="mt-6 w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-6">

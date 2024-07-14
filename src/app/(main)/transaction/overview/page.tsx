@@ -1,14 +1,16 @@
 'use client'
-import React, { useMemo } from 'react';
-import { RiArrowDownSLine, RiArrowUpSLine,RiArrowLeftSLine,RiArrowRightSLine } from '@remixicon/react';
+import React, { useEffect, useState } from 'react';
+import { RiSearchLine, RiArrowDownSLine, RiArrowUpSLine, RiArrowLeftSLine, RiArrowRightSLine } from '@remixicon/react';
 import {
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
   getPaginationRowModel,
+  getFilteredRowModel,
   useReactTable,
   ColumnDef,
   SortingState,
+  FilterFn,
   Header,
 } from '@tanstack/react-table';
 import {
@@ -17,20 +19,23 @@ import {
   TableCell,
   TableHead,
   TableHeaderCell,
-  TableRow,
+  TableRow
 } from '@tremor/react';
+
+import dayjs from 'dayjs';
+
+import { fetchTransactionData, RecentTransactionType } from '@/data/overview'
 
 function classNames(...classes: string[]): string {
   return classes.filter(Boolean).join(' ');
 }
 
-// Define a custom type for the column meta data
 type WorkspaceColumnMeta = {
   align?: 'text-left' | 'text-center' | 'text-right';
 };
 
-// Use the custom meta type in the ColumnDef
-type WorkspaceColumnDef = ColumnDef<Workspace, unknown> & {
+
+type WorkspaceColumnDef = ColumnDef<RecentTransactionType, unknown> & {
   meta?: WorkspaceColumnMeta;
 };
 interface ButtonProps {
@@ -45,7 +50,7 @@ const Button: React.FC<ButtonProps> = ({ onClick, disabled = false, children, po
     <button
       type="button"
       className={
-        `${position==='left' ?'rounded-l-tremor-small ':" " } ${position==='right' ?' -ml-px rounded-r-tremor-small ':" " } group p-2 text-tremor-default ring-1 ring-inset ring-tremor-ring hover:bg-tremor-background-muted disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent dark:ring-dark-tremor-ring hover:dark:bg-dark-tremor-background disabled:hover:dark:bg-transparent`
+        `${position === 'left' ? 'rounded-l-tremor-small ' : " "} ${position === 'right' ? ' -ml-px rounded-r-tremor-small ' : " "} group p-2 text-tremor-default ring-1 ring-inset ring-tremor-ring hover:bg-tremor-background-muted disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent dark:ring-dark-tremor-ring hover:dark:bg-dark-tremor-background disabled:hover:dark:bg-transparent`
       }
       onClick={onClick}
       disabled={disabled}
@@ -55,86 +60,34 @@ const Button: React.FC<ButtonProps> = ({ onClick, disabled = false, children, po
   );
 };
 
-interface Workspace {
-  userName: string;
-  region: string;
-  transactionStatus: string;
-  transactionAmount: string | number;
-  transactionTime: string;
+type Status = 'Completed' | 'Pending' | 'Failed' | 'Processing' | string;
+
+interface StatusBadgeProps {
+  status: Status;
 }
 
-const workspaces: Workspace[] = [
-  {
-    userName: "Emma Johnson",
-    region: "North America",
-    transactionStatus: "Completed",
-    transactionAmount: 250.75,
-    transactionTime: "2024-07-14 09:30:15"
-  },
-  {
-    userName: "Liam Chen",
-    region: "Asia",
-    transactionStatus: "Pending",
-    transactionAmount: 1000.00,
-    transactionTime: "2024-07-14 10:45:30"
-  },
-  {
-    userName: "Sophia Rodriguez",
-    region: "South America",
-    transactionStatus: "Failed",
-    transactionAmount: 75.50,
-    transactionTime: "2024-07-14 11:15:45"
-  },
-  {
-    userName: "Oliver Schmidt",
-    region: "Europe",
-    transactionStatus: "Completed",
-    transactionAmount: 500.25,
-    transactionTime: "2024-07-14 12:20:00"
-  },
-  {
-    userName: "Ava Patel",
-    region: "Asia",
-    transactionStatus: "Completed",
-    transactionAmount: 150.00,
-    transactionTime: "2024-07-14 13:35:20"
-  },
-  {
-    userName: "Noah Kim",
-    region: "Asia",
-    transactionStatus: "Pending",
-    transactionAmount: 300.75,
-    transactionTime: "2024-07-14 14:50:10"
-  },
-  {
-    userName: "Isabella Müller",
-    region: "Europe",
-    transactionStatus: "Completed",
-    transactionAmount: 450.50,
-    transactionTime: "2024-07-14 15:05:40"
-  },
-  {
-    userName: "Ethan Brown",
-    region: "North America",
-    transactionStatus: "Failed",
-    transactionAmount: 50.25,
-    transactionTime: "2024-07-14 16:25:55"
-  },
-  {
-    userName: "Mia Tanaka",
-    region: "Asia",
-    transactionStatus: "Completed",
-    transactionAmount: 700.00,
-    transactionTime: "2024-07-14 17:40:30"
-  },
-  {
-    userName: "Lucas Garcia",
-    region: "Europe",
-    transactionStatus: "Pending",
-    transactionAmount: 225.75,
-    transactionTime: "2024-07-14 18:55:15"
+const getStatusStyles = (status: Status): string => {
+  switch (status) {
+    case 'Completed':
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+    case 'Pending':
+      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+    case 'Failed':
+      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+    case 'Processing':
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
   }
-];
+};
+
+const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
+  return (
+    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusStyles(status)}`}>
+      {status}
+    </span>
+  );
+};
 
 const workspacesColumns: WorkspaceColumnDef[] = [
   {
@@ -142,7 +95,7 @@ const workspacesColumns: WorkspaceColumnDef[] = [
     accessorKey: 'userName',
     enableSorting: true,
     meta: {
-      align: 'text-left',
+      align: 'text-center',
     },
   },
   {
@@ -150,36 +103,46 @@ const workspacesColumns: WorkspaceColumnDef[] = [
     accessorKey: 'region',
     enableSorting: true,
     meta: {
-      align: 'text-left',
+      align: 'text-center',
     },
   },
   {
     header: 'Status',
-    accessorKey: 'transactionStatus',
+    accessorKey: 'status',
     enableSorting: false,
     meta: {
-      align: 'text-left',
+      align: 'text-center',
     },
+    cell: ({ row }) => <StatusBadge status={row.original.status} />,
   },
   {
     header: 'Amount',
-    accessorKey: 'transactionAmount',
+    accessorKey: 'amount',
     enableSorting: true,
     meta: {
-      align: 'text-right',
+      align: 'text-center',
     },
   },
   {
     header: 'Time',
-    accessorKey: 'transactionTime',
+    accessorKey: 'time',
     enableSorting: false,
     meta: {
-      align: 'text-right',
+      align: 'text-center',
+    },
+    cell: ({ row }) => {
+      const time = dayjs(row.original.time);
+      return (
+        <div className="flex flex-col items-center">
+          <span className="font-sm">{time.format('MMM D, YYYY')}</span>
+          <span className="text-xs text-gray-500">{time.format('h:mm A')}</span>
+        </div>
+      );
     },
   }
 ];
 
-function getAriaSortAttribute(header: Header<Workspace, unknown>): "none" | "ascending" | "descending" | undefined {
+function getAriaSortAttribute(header: Header<RecentTransactionType, unknown>): "none" | "ascending" | "descending" | undefined {
   if (!header.column.getCanSort()) {
     return undefined;
   }
@@ -190,23 +153,61 @@ function getAriaSortAttribute(header: Header<Workspace, unknown>): "none" | "asc
   return sortDirection === "asc" ? "ascending" : "descending";
 }
 
+const fuzzyFilter: FilterFn<RecentTransactionType> = (row, columnId, value) => {
+  const itemValue = row.getValue(columnId);
+  
+  if (typeof itemValue === 'number') {
+    return itemValue.toString().toLowerCase().includes(value.toLowerCase());
+  }
+  
+  if (typeof itemValue === 'string') {
+    return itemValue.toLowerCase().includes(value.toLowerCase());
+  }
+  
+  return false;
+};
+
+const SearchBar: React.FC<{ value: string; onChange: (value: string) => void }> = ({ value, onChange }) => {
+  return (
+    <div className="relative w-full max-w-md mb-4">
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Search transactions..."
+        className="w-full pl-10 pr-4 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:focus:ring-blue-600"
+      />
+      <RiSearchLine className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" />
+    </div>
+  );
+};
+
 export default function RecentTransaction() {
   const pageSize = 8;
-  const [sorting, setSorting] = React.useState<SortingState>([
-    { id: 'workspace', desc: false },
+  const [data, setData] = useState<RecentTransactionType[]>([]);
+  const [globalFilter, setGlobalFilter] = useState<string>('');
+
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: 'userName', desc: false },
   ]);
 
-  const [pagination, setPagination] = React.useState({
+  const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: pageSize,
   });
 
-  const data = useMemo(
-    // multiply dummy data to better demonstrate pagination over several pages
-    () => [...workspaces, ...workspaces, ...workspaces, ...workspaces],
-    [],
-  );
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await fetchTransactionData(200);
+        setData(result);
+      } catch (err) {
+        console.log('Error:', err)
+      }
+    };
 
+    fetchData();
+  }, []);
 
   const table = useReactTable({
     data: data,
@@ -216,17 +217,27 @@ export default function RecentTransaction() {
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
     onPaginationChange: setPagination,
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: fuzzyFilter,
+    getFilteredRowModel: getFilteredRowModel(),
+    filterFns: {
+      fuzzy: fuzzyFilter,
+    },
     state: {
       sorting,
       pagination,
+      globalFilter,
     },
   });
 
   return (
-    <>
-      <h3 className="text-tremor-title font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
-        Recent Transaction
-      </h3>
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center">
+        <h3 className="text-tremor-title font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong mb-2 sm:mb-0">
+          Recent Transactions
+        </h3>
+        <SearchBar value={globalFilter ?? ''} onChange={setGlobalFilter} />
+      </div>
       <Table>
         <TableHead>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -257,7 +268,7 @@ export default function RecentTransaction() {
                     <div
                       className={classNames(
                         header.column.columnDef.enableSorting === true
-                          ? 'flex items-center justify-between gap-2 hover:bg-tremor-background-muted hover:dark:bg-dark-tremor-background-muted'
+                          ? 'flex items-center justify-evenly'
                           : (header.column.columnDef as WorkspaceColumnDef).meta?.align || '',
                         'rounded-tremor-default px-3 py-1.5'
                       )}
@@ -347,7 +358,7 @@ export default function RecentTransaction() {
           </Button>
         </div>
       </div>
-    </>
+    </div>
 
   );
 }
