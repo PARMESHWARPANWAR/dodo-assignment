@@ -131,16 +131,16 @@ export default function Example() {
             </div>
           </div>
           <Divider />
-          <div className="flex items-center justify-end space-x-4">
+          <div className="flex items-center justify-end space-x-4 mt-4">
             <button
               type="button"
-              className="whitespace-nowrap rounded-tremor-small px-4 py-2.5 text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
+              className="whitespace-nowrap border border-gray-500  rounded-md px-4 py-2 text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="whitespace-nowrap rounded-tremor-default bg-tremor-brand px-4 py-2.5 text-tremor-default font-medium text-tremor-brand-inverted shadow-tremor-input hover:bg-tremor-brand-emphasis dark:bg-dark-tremor-brand dark:text-dark-tremor-brand-inverted dark:shadow-dark-tremor-input dark:hover:bg-dark-tremor-brand-emphasis"
+              className="whitespace-nowrap rounded-md rounded-tremor-default bg-blue-500 px-4 py-2 font-medium text-white shadow-tremor-input dark:shadow-dark-tremor-input dark:hover:bg-dark-tremor-brand-emphasis"
             >
               Submit
             </button>
