@@ -14,11 +14,6 @@ const data: DataPoint[] = [
     { name: 'Indiehacker', value: 80000, fill: "#e57a53" },
 ];
 
-interface CustomTooltipProps {
-    active?: boolean;
-    payload?: Array<{ value: number; payload: DataPoint }>;
-}
-
 interface TransactionsBarChartProps {
     title: string;
 }

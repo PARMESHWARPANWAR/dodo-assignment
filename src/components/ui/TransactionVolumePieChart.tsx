@@ -47,8 +47,8 @@ const TransactionVolumePieChart: React.FC<TransactionVolumePieChartProps> = ({ t
       </ResponsiveContainer>
       <div className="absolute right-6 top-[50%]  translate-y-[-50%]  ">
         <ul className="flex flex-col space-y-2">
-          {data.map((item) => (
-            <li className="flex gap-8 items-center text-sm text-foreground dark:text-slate-300">
+          {data.map((item,idx) => (
+            <li key={idx} className="flex gap-8 items-center text-sm text-foreground dark:text-slate-300">
               <div className="flex items-center gap-2">
                 <span
                   className="inline-block w-2 h-2 rounded-full"

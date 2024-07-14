@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react';
 import { Header } from '../../components/ui/navigation/Header';
-import { RightSideBar } from '../../components/ui/navigation/sidebarRight';
+import { RightSideBar } from '../../components/ui/navigation/rightSidebar';
 
 export default function Layout({
   children,
