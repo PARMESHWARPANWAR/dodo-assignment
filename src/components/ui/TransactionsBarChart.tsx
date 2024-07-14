@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Cell } from 'recharts';
 
 interface DataPoint {
     name: string;
@@ -49,7 +49,11 @@ const TransactionsBarChart: React.FC<TransactionsBarChartProps> = ({ title }) =>
                         domain={[0, 300000]}
                         ticks={[0, 100000, 200000, 300000]}
                     />
-                    <Bar dataKey="value" fill={(data) => data.fill} barSize={25} radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="value" barSize={25} radius={[6, 6, 0, 0]}>
+                        {data.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                    </Bar>
                 </BarChart>
             </ResponsiveContainer>
         </div>

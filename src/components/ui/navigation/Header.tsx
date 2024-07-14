@@ -10,15 +10,14 @@ import { StartIcon } from "../../../assets/icons/StarIcon";
 import { SunIcon } from "../../../assets/icons/SunIcon";
 import MobileSidebar from "./MobileSidebar";
 import { SearchBar } from "./SearchBar";
-type HeaderProps = {
+
+interface HeaderProps {
     notificationOpen: boolean;
     toggleNotificationSection: () => void;
-};
+  }
 
-export function Header({
-    notificationOpen,
-    toggleNotificationSection,
-}: HeaderProps) {
+  
+export const Header: React.FC<HeaderProps> = ({ notificationOpen, toggleNotificationSection }) => {
     const pathname = usePathname();
     const { theme, setTheme } = useTheme()
     const [pageName, setPageName] = useState('overview');

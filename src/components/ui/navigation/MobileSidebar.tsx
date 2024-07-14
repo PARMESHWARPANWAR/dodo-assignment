@@ -1,4 +1,3 @@
-import { siteConfig } from "@/app/siteConfig"
 import { Button } from "@/components/Button"
 import {
   Drawer,
@@ -20,12 +19,7 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from './tabs'
 
 export default function MobileSidebar() {
   const pathname = usePathname()
-  const isActive = (itemHref: string) => {
-    if (itemHref === siteConfig.baseLinks.settings) {
-      return pathname.startsWith("/settings")
-    }
-    return pathname === itemHref || pathname.startsWith(itemHref)
-  }
+
   return (
     <>
       <Drawer>
@@ -127,10 +121,7 @@ export default function MobileSidebar() {
                               focusRing,
                             )}
                           >
-                            <item.icon
-                              className="size-4 shrink-0"
-                              aria-hidden="true"
-                            />
+                            <item.icon />
                             {item.name}
                           </Link>
                         </li>

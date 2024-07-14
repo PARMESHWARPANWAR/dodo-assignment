@@ -1,5 +1,3 @@
-// Tremor Raw Button [v0.0.0]
-
 import { Slot } from "@radix-ui/react-slot"
 import { RiLoader2Fill } from "@remixicon/react"
 import React from "react"

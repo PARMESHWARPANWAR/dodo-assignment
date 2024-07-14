@@ -1,11 +1,14 @@
 'use client'
-import { RiArrowDownSFill, RiArrowLeftSLine, RiArrowRightSLine, RiArrowUpSFill } from '@remixicon/react';
+import React from 'react';
+import { RiArrowDownSLine, RiArrowUpSLine } from '@remixicon/react';
 import {
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  ColumnDef,
+  SortingState,
+  Header,
 } from '@tanstack/react-table';
 import {
   Table,
@@ -13,101 +16,32 @@ import {
   TableCell,
   TableHead,
   TableHeaderCell,
-  TableRow
+  TableRow,
 } from '@tremor/react';
-import { useMemo } from 'react';
 
-// This example requires @tanstack/react-table
-
-function classNames(...classes) {
+function classNames(...classes: string[]): string {
   return classes.filter(Boolean).join(' ');
 }
 
-const workspaces = [
-  {
-    workspace: 'sales_by_day_api',
-    owner: 'John Doe',
-    status: 'live',
-    costs: '$3,509.00',
-    region: 'US-West 1',
-    capacity: '99%',
-    lastEdited: '23/09/2023 13:00',
-  },
-  {
-    workspace: 'marketing_campaign',
-    owner: 'Jane Smith',
-    status: 'live',
-    costs: '$5,720.00',
-    region: 'US-East 2',
-    capacity: '80%',
-    lastEdited: '22/09/2023 10:45',
-  },
-  {
-    workspace: 'sales_campaign',
-    owner: 'Jane Smith',
-    status: 'live',
-    costs: '$5,720.00',
-    region: 'US-East 2',
-    capacity: '80%',
-    lastEdited: '22/09/2023 10:45',
-  },
-  {
-    workspace: 'development_env',
-    owner: 'Mike Johnson',
-    status: 'live',
-    costs: '$4,200.00',
-    region: 'EU-West 1',
-    capacity: '60%',
-    lastEdited: '21/09/2023 14:30',
-  },
-  {
-    workspace: 'new_workspace_1',
-    owner: 'Alice Brown',
-    status: 'live',
-    costs: '$2,100.00',
-    region: 'US-West 2',
-    capacity: '75%',
-    lastEdited: '24/09/2023 09:15',
-  },
-  {
-    workspace: 'test_environment',
-    owner: 'David Clark',
-    status: 'inactive',
-    costs: '$800.00',
-    region: 'EU-Central 1',
-    capacity: '40%',
-    lastEdited: '25/09/2023 16:20',
-  },
-  {
-    workspace: 'analytics_dashboard',
-    owner: 'Sarah Wilson',
-    status: 'live',
-    costs: '$6,500.00',
-    region: 'US-West 1',
-    capacity: '90%',
-    lastEdited: '26/09/2023 11:30',
-  },
-  {
-    workspace: 'research_project',
-    owner: 'Michael Adams',
-    status: 'live',
-    costs: '$3,900.00',
-    region: 'US-East 1',
-    capacity: '70%',
-    lastEdited: '27/09/2023 08:45',
-  },
-  {
-    workspace: 'training_environment',
-    owner: 'Laura White',
-    status: 'live',
-    costs: '$2,500.00',
-    region: 'EU-North 1',
-    capacity: '55%',
-    lastEdited: '28/09/2023 12:15',
-  },
-];
+// Define a custom type for the column meta data
+type WorkspaceColumnMeta = {
+  align?: 'text-left' | 'text-center' | 'text-right';
+};
 
-const transactions = [
+// Use the custom meta type in the ColumnDef
+type WorkspaceColumnDef = ColumnDef<Workspace, unknown> & {
+  meta?: WorkspaceColumnMeta;
+};
+
+interface Workspace {
+  userName: string;
+  region: string;
+  transactionStatus: string;
+  transactionAmount: string | number;
+  transactionTime: string;
+}
+
+const workspaces: Workspace[] = [
   {
     userName: "Emma Johnson",
     region: "North America",
@@ -180,203 +114,133 @@ const transactions = [
   }
 ];
 
-const workspacesColumns = [
-  {
-    header: 'Workspace',
-    accessorKey: 'workspace',
-    meta: {
-      align: 'text-left',
-    },
-  },
-  {
-    header: 'Owner',
-    accessorKey: 'owner',
-    meta: {
-      align: 'text-left',
-    },
-  },
-  {
-    header: 'Status',
-    accessorKey: 'status',
-    meta: {
-      align: 'text-left',
-    },
-  },
-  {
-    header: 'Region',
-    accessorKey: 'region',
-    meta: {
-      align: 'text-left',
-    },
-  },
-  {
-    header: 'Capacity',
-    accessorKey: 'capacity',
-    meta: {
-      align: 'text-right',
-    },
-  },
-  {
-    header: 'Costs',
-    accessorKey: 'costs',
-    meta: {
-      align: 'text-right',
-    },
-  },
-  {
-    header: 'Last edited',
-    accessorKey: 'lastEdited',
-    meta: {
-      align: 'text-right',
-    },
-  },
-];
-const transactionColumns = [
+const workspacesColumns: WorkspaceColumnDef[] = [
   {
     header: 'User',
     accessorKey: 'userName',
+    enableSorting: true,
     meta: {
-      // align: 'text-left',
+      align: 'text-left',
     },
   },
   {
     header: 'Region',
     accessorKey: 'region',
+    enableSorting: true,
     meta: {
-      // align: 'text-left',
+      align: 'text-left',
     },
   },
   {
     header: 'Status',
     accessorKey: 'transactionStatus',
+    enableSorting: false,
     meta: {
-      // align: 'text-left',
+      align: 'text-left',
     },
   },
   {
     header: 'Amount',
     accessorKey: 'transactionAmount',
+    enableSorting: true,
     meta: {
-      // align: 'text-right',
+      align: 'text-right',
     },
   },
   {
     header: 'Time',
     accessorKey: 'transactionTime',
+    enableSorting: false,
     meta: {
-      // align: 'text-right',
+      align: 'text-right',
     },
-  },
+  }
 ];
 
-const Button = ({ onClick, disabled, children, position }) => {
-  return (
-    <button
-      type="button"
-      className={classNames(
-        'group p-2 text-tremor-default ring-1 ring-inset ring-tremor-ring hover:bg-tremor-background-muted disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent dark:ring-dark-tremor-ring hover:dark:bg-dark-tremor-background disabled:hover:dark:bg-transparent',
-        position === 'left'
-          ? 'rounded-l-tremor-small'
-          : position === 'right'
-            ? '-ml-px rounded-r-tremor-small'
-            : '',
-      )}
-      onClick={onClick}
-      disabled={disabled}
-    >
-      {children}
-    </button>
-  );
-};
+function getAriaSortAttribute(header: Header<Workspace, unknown>): "none" | "ascending" | "descending" | undefined {
+  if (!header.column.getCanSort()) {
+    return undefined;
+  }
+  const sortDirection = header.column.getIsSorted();
+  if (sortDirection === false) {
+    return "none";
+  }
+  return sortDirection === "asc" ? "ascending" : "descending";
+}
 
 export default function Example() {
-  const pageSize = 8;
-
-  const data = useMemo(
-    // multiply dummy data to better demonstrate pagination over several pages
-    () => [...transactions, ...transactions, ...transactions, ...transactions],
-    [],
-  );
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { id: 'workspace', desc: false },
+  ]);
 
   const table = useReactTable({
-    data: data,
-    columns: transactionColumns,
+    data: workspaces,
+    columns: workspacesColumns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    initialState: {
-      sorting: [
-        {
-          id: 'workspace',
-          desc: false,
-        },
-      ],
-      pagination: {
-        pageIndex: 0,
-        pageSize: pageSize,
-      },
+    onSortingChange: setSorting,
+    state: {
+      sorting,
     },
   });
 
   return (
-    <>
-      <h1 className="text-lg font-semibold text-gray-900 sm:text-xl dark:text-gray-50">
-        Recent Transactions
-      </h1>
-      <Table>
-        <TableHead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow
-              key={headerGroup.id}
-              className="border-b border-tremor-border dark:border-dark-tremor-border"
-            >
-              {headerGroup.headers.map((header) => (
+    <Table>
+      <TableHead>
+        {table.getHeaderGroups().map((headerGroup) => (
+          <TableRow
+            key={headerGroup.id}
+            className="border-b border-tremor-border dark:border-dark-tremor-border"
+          >
+            {headerGroup.headers.map((header) => {
+              const toggleSortingHandler = header.column.getToggleSortingHandler();
+              return (
                 <TableHeaderCell
                   key={header.id}
-                  scope="col"
-                  onClick={header.column.getToggleSortingHandler()}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                      header.column.getToggleSortingHandler()(event);
+                  onClick={toggleSortingHandler}
+                  onKeyDown={(event: React.KeyboardEvent) => {
+                    if (event.key === 'Enter' && toggleSortingHandler) {
+                      toggleSortingHandler(event);
                     }
                   }}
-                  className={classNames(header.column.columnDef.meta.align,
+                  className={classNames(
                     header.column.getCanSort()
                       ? 'cursor-pointer select-none'
                       : '',
-                    'bg-tremor-background-muted first:rounded-l-tremor-small last:rounded-r-tremor-small dark:bg-dark-tremor-background-muted',
+                    'px-0.5 py-1.5'
                   )}
                   tabIndex={header.column.getCanSort() ? 0 : -1}
-                  aria-sort={header.column.getIsSorted()}
+                  aria-sort={getAriaSortAttribute(header)}
                 >
                   <div
                     className={classNames(
                       header.column.columnDef.enableSorting === true
-                        ? 'flex items-center gap-2'
-                        : header.column.columnDef.meta.align,
+                        ? 'flex items-center justify-between gap-2 hover:bg-tremor-background-muted hover:dark:bg-dark-tremor-background-muted'
+                        : (header.column.columnDef as WorkspaceColumnDef).meta?.align || '',
+                      'rounded-tremor-default px-3 py-1.5'
                     )}
                   >
                     {flexRender(
                       header.column.columnDef.header,
-                      header.getContext(),
+                      header.getContext()
                     )}
                     {header.column.getCanSort() ? (
-                      <div className="-space-y-2.5">
-                        <RiArrowUpSFill
+                      <div className="-space-y-2">
+                        <RiArrowUpSLine
                           className={classNames(
-                            'size-4 text-tremor-content dark:text-dark-tremor-content',
+                            'size-4 text-tremor-content-strong dark:text-dark-tremor-content-strong',
                             header.column.getIsSorted() === 'desc'
                               ? 'opacity-30'
-                              : '',
+                              : ''
                           )}
                           aria-hidden={true}
                         />
-                        <RiArrowDownSFill
+                        <RiArrowDownSLine
                           className={classNames(
-                            'size-4 text-tremor-content dark:text-dark-tremor-content',
+                            'size-4 text-tremor-content-strong dark:text-dark-tremor-content-strong',
                             header.column.getIsSorted() === 'asc'
                               ? 'opacity-30'
-                              : '',
+                              : ''
                           )}
                           aria-hidden={true}
                         />
@@ -384,62 +248,25 @@ export default function Example() {
                     ) : null}
                   </div>
                 </TableHeaderCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableHead>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell
-                  key={cell.id}
-                  className={classNames(cell.column.columnDef.meta.align)}
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <div className="mt-10 flex items-center justify-between">
-        <p className="text-tremor-default tabular-nums text-tremor-content dark:text-dark-tremor-content">
-          Page{' '}
-          <span className="font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">{`${table.getState().pagination.pageIndex + 1
-            }`}</span>{' '}
-          /
-          <span className="font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
-            {' '}
-            {`${table.getPageCount()}`}
-          </span>
-        </p>
-        <div className="inline-flex items-center rounded-tremor-small shadow-tremor-input dark:shadow-dark-tremor-input">
-          <Button
-            position="left"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <span className="sr-only">Previous</span>
-            <RiArrowLeftSLine
-              className="size-5 text-tremor-content-emphasis group-hover:text-tremor-content-strong dark:text-dark-tremor-content-emphasis group-hover:dark:text-dark-tremor-content-strong"
-              aria-hidden={true}
-            />
-          </Button>
-          <Button
-            position="right"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            <span className="sr-only">Next</span>
-            <RiArrowRightSLine
-              className="size-5 text-tremor-content-emphasis group-hover:text-tremor-content-strong dark:text-dark-tremor-content-emphasis group-hover:dark:text-dark-tremor-content-strong"
-              aria-hidden={true}
-            />
-          </Button>
-        </div>
-      </div>
-    </>
+              );
+            })}
+          </TableRow>
+        ))}
+      </TableHead>
+      <TableBody>
+        {table.getRowModel().rows.map((row) => (
+          <TableRow key={row.id}>
+            {row.getVisibleCells().map((cell) => (
+              <TableCell
+                key={cell.id}
+                className={(cell.column.columnDef as WorkspaceColumnDef).meta?.align}
+              >
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
-

@@ -1,5 +1,4 @@
 "use client"
-import { siteConfig } from "@/app/siteConfig"
 import { cx, focusRing } from "@/lib/utils"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -161,12 +160,6 @@ export const NAV_ITEMS = [
 
 export function Sidebar() {
   const pathname = usePathname()
-  const isActive = (itemHref: string) => {
-    if (itemHref === siteConfig.baseLinks.settings) {
-      return pathname.startsWith("/settings")
-    }
-    return pathname === itemHref || pathname.startsWith(itemHref)
-  }
 
   return (
     <>
@@ -250,10 +243,7 @@ export function Sidebar() {
                         focusRing,
                       )}
                     >
-                      <item.icon
-                        className="size-4 shrink-0"
-                        aria-hidden="true"
-                      />
+                      <item.icon/>
                       {item.name}
                     </Link>
                   </li>
