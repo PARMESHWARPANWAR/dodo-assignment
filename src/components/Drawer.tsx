@@ -1,5 +1,3 @@
-// Tremor Raw Drawer [v0.0.0]
-
 import * as DrawerPrimitives from "@radix-ui/react-dialog"
 import { RiCloseLine } from "@remixicon/react"
 import * as React from "react"
