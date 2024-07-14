@@ -46,7 +46,7 @@ yarn test
 yarn test:coverage
 ```
 
-![coverage](public/images/coverage.png)
+![coverage](public/coverage.png)
 
 ### To run tests in watch mode, use:
 
@@ -54,7 +54,7 @@ yarn test:coverage
 yarn test:watch
 ```
 
-![watch](public/images/watch.png)
+![watch](public/watch.png)
 
 
 ### node js version > 18.17 or greater than
