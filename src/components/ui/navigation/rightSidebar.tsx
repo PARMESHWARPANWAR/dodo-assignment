@@ -16,7 +16,7 @@ interface Activity {
     img: string;
 }
 
-type Notification = {
+interface Notification{
     title: string;
     time: string;
     type: NotificationType;
@@ -62,7 +62,7 @@ const CurrentActivities: Activity[] = [
     },
 ] as const;
 
-export const CurrentNotifications = [
+const CurrentNotifications:Notification[] = [
     {
         title: 'You have an issue that needs to be fixed.',
         time: 'Just Now',
@@ -83,7 +83,7 @@ export const CurrentNotifications = [
         time: 'Today, 11:59 AM',
         type: NotificationType.BROADCAST,
     },
-] satisfies Notification[];
+] as const;
 
 const Notification = ({ notification, index }: NotificationProps) => {
     const { title, time, type } = notification;
@@ -185,7 +185,7 @@ export function RightSideBar({
     );
 }
 
-
-
+Notification.displayName = 'Notification';
+ActivityItem.displayName = 'ActivityItem';
 RightSidebarView.displayName = 'RightSidebarView';
 RightSideBar.displayName = 'RightSideBar';
